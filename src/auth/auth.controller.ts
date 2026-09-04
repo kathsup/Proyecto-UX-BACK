@@ -1,34 +1,49 @@
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { genSalt, hash } from 'bcrypt';
+import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { LoginDto } from './dto/login.dto';
+import { signToken } from './jwt.util';
 
-@Controller('habits')
-@UseGuards(JwtAuthGuard) // protege TODAS las rutas de este controller
-export class HabitsController {
-  constructor(private readonly habitsService: HabitsService) {}
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createHabitDto: CreateHabitDto, @CurrentUser() user: any) {
-    return this.habitsService.create(createHabitDto, user.id);
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    try {
+      const salt = await genSalt(10);
+      const hashedPassword = await hash(registerDto.password, salt);
+      const payload: RegisterUserDto = {
+        ...registerDto,
+        email: registerDto.email.toLowerCase(),
+        password: hashedPassword,
+        salt,
+      };
+      return this.authService.register(payload);
+    } catch {
+      throw new BadRequestException('Failed to register user');
+    }
   }
 
-  @Get()
-  findAll(@CurrentUser() user: any) {
-    return this.habitsService.findAll(user.id);
-  }
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    const user = await this.authService.findUserByEmail(loginDto.email);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const hashedPassword = await hash(loginDto.password, user.salt);
+    if (hashedPassword !== user.password) {
+      throw new BadRequestException('Invalid password');
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.habitsService.findOne(id);
-  }
+    const token = signToken(
+      { email: user.email, name: user.name, id: user.id },
+      'supersecret',
+      { expiresIn: '1h' },
+    );
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHabitDto: UpdateHabitDto) {
-    return this.habitsService.update(id, updateHabitDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.habitsService.remove(id);
+    return { message: 'Login successful', token };
   }
 }
