@@ -7,10 +7,11 @@ import { UpdateHabitDto } from './dto/update-habit.dto';
 export class HabitsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createHabitDto: CreateHabitDto) {
+  create(createHabitDto: CreateHabitDto, userId: string) {
     return this.prisma.habit.create({
       data: {
-        ...createHabitDto, //copia todas las propiedades recibidas
+        ...createHabitDto,
+        userId,
         startDate: new Date(createHabitDto.startDate),
         endDate: createHabitDto.endDate
           ? new Date(createHabitDto.endDate)
@@ -19,8 +20,8 @@ export class HabitsService {
     });
   }
 
-  findAll() {
-    return this.prisma.habit.findMany();
+  findAll(userId: string) {
+    return this.prisma.habit.findMany({ where: { userId } });
   }
 
   findOne(id: string) {
@@ -31,9 +32,8 @@ export class HabitsService {
     return this.prisma.habit.update({
       where: { id },
       data: {
-        ...updateHabitDto, //desempaqueta todas las propiedades enviadas por el dto y las pone en el objeto data
+        ...updateHabitDto,
         ...(updateHabitDto.startDate && {
-          //... es para desestructurar un objeto
           startDate: new Date(updateHabitDto.startDate),
         }),
         ...(updateHabitDto.endDate && {
