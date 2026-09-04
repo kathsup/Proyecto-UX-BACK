@@ -40,7 +40,7 @@ export class CreateHabitDto {
   active?: boolean;
 
   @IsUUID()
-  userId!: string;
+  userId!: string; //borrar
 
   @IsUUID()
   @IsOptional()
