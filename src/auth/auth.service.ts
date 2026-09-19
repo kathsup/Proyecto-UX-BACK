@@ -9,7 +9,8 @@ export class AuthService {
   register(registerDto: RegisterUserDto) {
     return this.prisma.user.create({
       data: {
-        name: registerDto.name,
+        firstName: registerDto.firstName,
+        lastName: registerDto.lastName,
         email: registerDto.email,
         password: registerDto.password,
         salt: registerDto.salt,

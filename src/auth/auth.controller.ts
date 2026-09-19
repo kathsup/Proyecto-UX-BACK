@@ -39,7 +39,12 @@ export class AuthController {
     }
 
     const token = signToken(
-      { email: user.email, name: user.name, id: user.id },
+      {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        id: user.id,
+      },
       'supersecret',
       { expiresIn: '1h' },
     );

@@ -14,7 +14,8 @@ datasource db {
 
 model User {
   id        String    @id @default(uuid()) @map("_id")
-  name      String
+  firstName      String
+  lastName  String
   email     String    @unique
   password  String
   salt      String
@@ -24,23 +25,15 @@ model User {
   habits    Habit[]
 }
 
-model PredefinedHabit {
-  id            String   @id @default(uuid()) @map("_id")
-  name          String
-  description   String?
-  category      String?
-  unit          String?
-  defaultTarget String?
-
-  habits        Habit[]
-}
-
 model Habit {
   id          String    @id @default(uuid()) @map("_id")
   name        String
   description String?
   category    String?
-  frequency   String
+  frequency   String   // "daily" | "weekly" | "custom"
+  targetValue Int       @default(1)   
+  unit        String?                 
+  periodDays  Int?     
   priority    String?
   startDate   DateTime
   endDate     DateTime?
@@ -51,15 +44,13 @@ model Habit {
   userId      String
   user        User      @relation(fields: [userId], references: [id])
 
-  predefinedHabitId String?
-  predefinedHabit   PredefinedHabit? @relation(fields: [predefinedHabitId], references: [id])
-
   records     Record[]
 }
 
 model Record {
   id        String   @id @default(uuid()) @map("_id")
   date      DateTime
+  value     Int @default(0)
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
 

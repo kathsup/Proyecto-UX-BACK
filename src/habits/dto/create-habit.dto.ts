@@ -1,10 +1,13 @@
 import {
   IsBoolean,
   IsDateString,
+  IsIn,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
+  Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateHabitDto {
@@ -20,9 +23,22 @@ export class CreateHabitDto {
   @IsOptional()
   category?: string;
 
+  @IsIn(['daily', 'weekly', 'custom'])
+  frequency!: string;
+
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  targetValue?: number;
+
   @IsString()
-  @IsNotEmpty()
-  frequency!: string; // "daily" | "weekly" | "custom"
+  @IsOptional()
+  unit?: string;
+
+  @ValidateIf((o) => o.frequency === 'custom')
+  @IsInt()
+  @Min(2)
+  periodDays?: number;
 
   @IsString()
   @IsOptional()
@@ -38,11 +54,4 @@ export class CreateHabitDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
-
-  @IsUUID()
-  userId!: string; //borrar
-
-  @IsUUID()
-  @IsOptional()
-  predefinedHabitId?: string;
 }

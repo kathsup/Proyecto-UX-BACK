@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsNumber,
 } from 'class-validator';
 
 export class CreateRecordDto {
@@ -18,4 +19,8 @@ export class CreateRecordDto {
   @IsBoolean()
   @IsOptional()
   completed?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  value?: number;
 }

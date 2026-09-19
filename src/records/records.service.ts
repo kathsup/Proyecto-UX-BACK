@@ -11,6 +11,7 @@ export class RecordsService {
       data: {
         habitId: createRecordDto.habitId,
         date: new Date(createRecordDto.date),
+        value: createRecordDto.value ?? 0,
         completed: createRecordDto.completed ?? true,
         userId,
       },
