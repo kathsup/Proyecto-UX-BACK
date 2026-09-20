@@ -58,4 +58,5 @@ model Record {
   habit     Habit    @relation(fields: [habitId], references: [id])
 
   userId    String
+  @@unique([habitId, date])
 }
