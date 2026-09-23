@@ -6,6 +6,7 @@ import { HabitsModule } from './habits/habits.module';
 import { AuthModule } from './auth/auth.module';
 import { RecordsModule } from './records/records.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     AuthModule,
     RecordsModule,
     StatisticsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
+import { ListHabitsQueryDto } from './dto/list-habits-query.dto';
 
 @Injectable()
 export class HabitsService {
@@ -20,17 +21,28 @@ export class HabitsService {
     });
   }
 
-  findAll(userId: string) {
-    return this.prisma.habit.findMany({ where: { userId } });
+  findAll(userId: string, query: ListHabitsQueryDto) {
+    return this.prisma.habit.findMany({
+      where: {
+        userId,
+        active:
+          query.active === undefined ? undefined : query.active === 'true',
+        category: query.category || undefined,
+        name: query.search
+          ? { contains: query.search, mode: 'insensitive' }
+          : undefined,
+      },
+      orderBy: { [query.sort ?? 'createdAt']: 'asc' },
+    });
   }
 
-  findOne(id: string) {
-    return this.prisma.habit.findUnique({ where: { id } });
+  findOne(id: string, userId: string) {
+    return this.prisma.habit.findFirst({ where: { id, userId } });
   }
 
-  update(id: string, updateHabitDto: UpdateHabitDto) {
-    return this.prisma.habit.update({
-      where: { id },
+  update(id: string, userId: string, updateHabitDto: UpdateHabitDto) {
+    return this.prisma.habit.updateMany({
+      where: { id, userId },
       data: {
         ...updateHabitDto,
         ...(updateHabitDto.startDate && {
@@ -43,7 +55,7 @@ export class HabitsService {
     });
   }
 
-  remove(id: string) {
-    return this.prisma.habit.delete({ where: { id } });
+  remove(id: string, userId: string) {
+    return this.prisma.habit.deleteMany({ where: { id, userId } });
   }
 }
