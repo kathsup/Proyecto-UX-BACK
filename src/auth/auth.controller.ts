@@ -45,7 +45,7 @@ export class AuthController {
         lastName: user.lastName,
         id: user.id,
       },
-      'supersecret',
+      process.env.JWT_SECRET!,
       { expiresIn: '1h' },
     );
 

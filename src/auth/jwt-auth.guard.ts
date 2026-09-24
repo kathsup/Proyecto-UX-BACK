@@ -20,7 +20,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = authHeader.split(' ')[1];
 
     try {
-      const payload = verifyToken(token, 'supersecret'); // mismo secret que en signToken
+      const payload = verifyToken(token, process.env.JWT_SECRET!); // mismo secret que en signToken
       (request as any).user = payload; // { id, email, name }
       return true;
     } catch {
